@@ -1,5 +1,7 @@
 using System;
 using Xunit;
+using System.Collections.Generic;
+using Linq;
 
 namespace LoggingKata.Test
 {
@@ -30,12 +32,15 @@ namespace LoggingKata.Test
             //       each representing a TacoBell location
 
             //Arrange
+            var tacoParser = new TacoParser();
 
             //Act
+            var actual = tacoParser.Parse(line);
 
             //Assert
+            //Assert.Equal( expected.ToString(), actual.Location.Longitude);
         }
-
+        
 
         //TODO: Create a test ShouldParseLatitude
 
