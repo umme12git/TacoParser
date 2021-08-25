@@ -1,7 +1,11 @@
 ﻿using System;
+//using System.Device.Loction;
+using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+
 using GeoCoordinatePortable;
+
 
 namespace LoggingKata
 {
@@ -20,6 +24,10 @@ namespace LoggingKata
             // use File.ReadAllLines(path) to grab all the lines from your csv file
             // Log and error if you get 0 lines and a warning if you get 1 line
             var lines = File.ReadAllLines(csvPath);
+            if (lines.Length == 0)
+                logger.LogError("Empty file");
+            if (lines.Length == 1)
+                logger.LogWarning("only one instance of data. can not find distance to another locatioin");
 
             logger.LogInfo($"Lines: {lines[0]}");
 
@@ -27,7 +35,7 @@ namespace LoggingKata
             var parser = new TacoParser();
 
             // Grab an IEnumerable of locations using the Select command: var locations = lines.Select(parser.Parse);
-            var locations = lines.Select(parser.Parse).ToArray();
+            var locations = lines.Select(line => parser.Parse(line)).ToArray();
 
             // DON'T FORGET TO LOG YOUR STEPS
 
@@ -35,6 +43,13 @@ namespace LoggingKata
 
             // TODO: Create two `ITrackable` variables with initial values of `null`. These will be used to store your two taco bells that are the farthest from each other.
             // Create a `double` variable to store the distance
+
+            ITrackable firstLocation = new TacoBell();
+            ITrackable secondLocation = new TacoBell();
+            
+            double distance = 0.0;
+            
+            //double largestDis = 0.0;
 
             // Include the Geolocation toolbox, so you can compare locations: `using GeoCoordinatePortable;`
 
@@ -52,8 +67,38 @@ namespace LoggingKata
 
             // Once you've looped through everything, you've found the two Taco Bells farthest away from each other.
 
+            for(int i = 0; i < locations.Length; i++)
+            {
+                var locA= locations[i];
 
-            
+                var coordA = new GeoCoordinate();
+                coordA.Latitude = locA.Location.Latitude;
+                coordA.Longitude = locA.Location.Longitude;
+
+                
+                for (int j = 0; j < locations.Length; j++)
+                {
+                    var locB = locations[j];
+
+                    var coordB = new GeoCoordinate();
+                    coordB.Latitude = locB.Location.Latitude; 
+                    coordB.Longitude = locB.Location.Longitude;
+
+                    if(coordA.GetDistanceTo(coordB) > distance)
+                    {
+                        distance = coordA.GetDistanceTo(coordB);
+                        firstLocation = locA;
+                        secondLocation = locB;
+                                           
+                    }
+                   
+                    //Console.WriteLine($"distance  and i and j are { distance}, {i}, {j}");
+                }
+                                 
+                
+            }
+            logger.LogInfo($"The two taco bells with largest distance {distance} are {firstLocation.Name}   {secondLocation.Name}");
+                        
         }
     }
 }
